@@ -3,13 +3,16 @@ import numpy as np
 from deepface import DeepFace
 from scipy.spatial.distance import cosine
 
+from utils import maybe_download_and_call
+
 
 def generate_embeeddings_from_faces(reference_dir, subfolder):
     # Iterate through the subfolders in the main folder
     subfolder_path = os.path.join(reference_dir, subfolder)
     # Check if it is a folder
     if not os.path.isdir(subfolder_path):
-        raise f"{subfolder_path} is not a directory"
+        print(RuntimeError(f"{subfolder_path} is not a directory"))
+        return False
 
     # Create a new folder for the npy files
     npy_folder = os.path.join(reference_dir, f"{subfolder}_npy")
@@ -42,9 +45,10 @@ def generate_embeeddings_from_faces(reference_dir, subfolder):
         npy_file_path = os.path.join(npy_folder, npy_file_name)
         np.save(npy_file_path, embedding)
 
+    return True
+
 
 def load_reference_embeddings(reference_dir):
-
     # Load pre-calculated embeddings and their class labels
     embeddings = []
     labels = []
@@ -54,8 +58,9 @@ def load_reference_embeddings(reference_dir):
 
         if subfolder.endswith("_npy"):
             continue
-        if not os.path.exists(subfolder_path + "_npy"):
-            generate_embeeddings_from_faces(reference_dir, subfolder)
+        if (not os.path.exists(subfolder_path + "_npy")
+                and not generate_embeeddings_from_faces(reference_dir, subfolder)):
+            continue
 
         for npy_file in os.listdir(subfolder_path + "_npy"):
             npy_file_path = os.path.join(subfolder_path + "_npy", npy_file)
@@ -67,24 +72,41 @@ def load_reference_embeddings(reference_dir):
 
 
 class FaceTagger:
-    def __init__(self, reference_dir="references"):
+    def __init__(self, reference_dir=f"{os.path.dirname(__file__)}/references"):
         self.embeddings, self.labels = load_reference_embeddings(reference_dir)
 
-    def classify_image(self, input_image_path):
-        # Calculate input image's face embedding
-        input_embedding = DeepFace.represent(input_image_path, model_name='VGG-Face', enforce_detection=True,
-                                             detector_backend='opencv')
+    def tag_faces(self, input_image_path, threshold=0.8):
+        try:
+            # Calculate input image's face embedding
+            faces = DeepFace.represent(input_image_path, model_name='VGG-Face', enforce_detection=True,
+                                       detector_backend='opencv')
+        except ValueError:
+            return []
 
-        # Compare input image's embedding with pre-calculated embeddings
-        similarities = [
-            1 - cosine(np.array(input_embedding[0]['embedding']), emb) for emb in self.embeddings]
+        results = []
+        for face in faces:
+            # Compare input image's embedding with pre-calculated embeddings
+            similarities = [
+                1 - cosine(np.array(face['embedding']), emb) for emb in self.embeddings]
+            # Find the top-5 most similar embeddings
+            top_indices = np.argsort(similarities)
+            # Determine the class based on the majority of top-5 most similar embeddings
+            top_classes = []
+            for i in top_indices:
+                if similarities[i] < threshold:
+                    # If similarity is under a threshold, do not consider.
+                    continue
+                top_classes.append(self.labels[i])
+            if len(top_classes) == 0:
+                continue
+            predicted_class = max(set(top_classes), key=top_classes.count)
+            results.append(predicted_class)
 
-        # Find the top-5 most similar embeddings
-        top_5_indices = np.argsort(similarities)[-5:]
+        return results
 
-        # Determine the class based on the majority of top-5 most similar embeddings
-        top_5_classes = [self.labels[i] for i in top_5_indices]
-        print("top_5_classes:", top_5_classes)
-        predicted_class = max(set(top_5_classes), key=top_5_classes.count)
+    def __call__(self, path_or_url):
+        return maybe_download_and_call(path_or_url, self.tag_faces)
 
-        return predicted_class
+
+if __name__ == "__main__":
+    print(FaceTagger()("/Users/insoochung/Desktop/test.jpeg"))
