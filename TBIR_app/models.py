@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class Photo(models.Model):
-    image_path = models.ImageField(upload_to='photos')
+    image_url = models.URLField(null=True)
     caption = models.CharField(max_length=255)
     caption_vector = models.JSONField(null=True, blank=True)
     names = models.CharField(max_length=255)
