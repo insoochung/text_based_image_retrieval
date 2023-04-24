@@ -13,11 +13,17 @@ try:
     # Try to fetch from Django app setting
     MAPS_API_KEY = settings.MAPS_API_KEY
 except:
-    # On failure, fetch from local .env file
+    # On failure, fetch .env file - usually required if django app is not set up
+    # and this file as ran as a script
     import environ
+    BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
     env = environ.Env()
-    environ.Env.read_env()
+
+    environ.Env.read_env(
+        env_file=str(BASE_DIR / ".env")
+    )
     MAPS_API_KEY = env("MAPS_API_KEY")
+
 
 def is_url(url):
     try:
@@ -25,6 +31,7 @@ def is_url(url):
         return all([result.scheme, result.netloc])
     except ValueError:
         return False
+
 
 class LocationTagger:
     def __init__(self):
@@ -36,8 +43,10 @@ class LocationTagger:
         url = (f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
                f"location={meta['Latitude']:.5f}%2C{meta['Longitude']:.5f}&type={loc_type}&radius=1500&key={MAPS_API_KEY}")
         response = requests.request("GET", url, headers={}, data={})
-        return ", ".join([j["name"] for j in json.loads(response.text)["results"]])
-
+        results = json.loads(response.text)["results"]
+        if len(results) > 5:
+            results = results[:5]
+        return ", ".join([j["name"] for j in results])
 
     def __call__(self, image_path):
         if is_url(image_path):
