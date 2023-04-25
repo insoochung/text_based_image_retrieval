@@ -1,12 +1,10 @@
-from urllib import parse
-from urllib import request
 import requests
 
-import tempfile
 import pathlib
 import json
 
 from GPSPhoto import gpsphoto
+from utils import maybe_download_and_call
 
 from django.conf import settings
 try:
@@ -25,14 +23,6 @@ except:
     MAPS_API_KEY = env("MAPS_API_KEY")
 
 
-def is_url(url):
-    try:
-        result = parse.urlparse(url)
-        return all([result.scheme, result.netloc])
-    except ValueError:
-        return False
-
-
 class LocationTagger:
     def __init__(self):
         pass
@@ -48,18 +38,8 @@ class LocationTagger:
             results = results[:5]
         return ", ".join([j["name"] for j in results])
 
-    def __call__(self, image_path):
-        if is_url(image_path):
-            image_url = image_path
-            with tempfile.TemporaryDirectory() as tempdir:
-                # Temporarily download file
-                image_path = str(
-                    pathlib.Path(tempdir) / pathlib.Path(image_url.split("/")[-1]))
-                request.urlretrieve(image_url, image_path)
-                res = self.get_tags(image_path)
-            return res
-        else:
-            return self.get_tags(image_path)
+    def __call__(self, path_or_url):
+        return maybe_download_and_call(path_or_url, self.get_tags)
 
 
 if __name__ == "__main__":
