@@ -34,7 +34,7 @@ def tag_names(images_dir="images"):
         os.makedirs(images_dir)
 
     for photo in tqdm.tqdm(Photo.objects.all()):
-        if photo.names or photo.name_vector:
+        if photo.names:
             continue
 
         image_path = maybe_download(
