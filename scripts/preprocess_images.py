@@ -3,7 +3,7 @@ from PIL import Image
 import pillow_heif
 
 
-def rename_images(folder_path, output_folder, new_extension='jpg'):
+def preprocess_images(folder_path, output_folder, new_extension='jpg'):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
@@ -32,6 +32,6 @@ def rename_images(folder_path, output_folder, new_extension='jpg'):
 
 
 if __name__ == "__main__":
-    input_folder = "images_temp"
-    output_folder = "temp"
-    rename_images(input_folder, output_folder)
+    input_folder = "images_raw"
+    output_folder = "images"
+    preprocess_images(input_folder, output_folder)
