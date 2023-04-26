@@ -3,7 +3,7 @@ import numpy as np
 from deepface import DeepFace
 from scipy.spatial.distance import cosine
 
-from utils import maybe_download_and_call
+from .utils import maybe_download_and_call
 
 
 def generate_embeeddings_from_faces(reference_dir, subfolder):
@@ -80,7 +80,7 @@ class FaceTagger:
             # Calculate input image's face embedding
             faces = DeepFace.represent(input_image_path, model_name='VGG-Face', enforce_detection=True,
                                        detector_backend='opencv')
-        except ValueError:
+        except (ValueError, AttributeError):
             return []
 
         results = []

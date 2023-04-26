@@ -4,7 +4,7 @@ import pathlib
 import json
 
 from GPSPhoto import gpsphoto
-from utils import maybe_download_and_call
+from .utils import maybe_download_and_call
 
 from django.conf import settings
 try:
