@@ -1,5 +1,6 @@
 import os
 
+
 def rename_images(folder_path, output_folder, new_extension='jpg'):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -11,7 +12,8 @@ def rename_images(folder_path, output_folder, new_extension='jpg'):
         if file.lower().endswith(('.png', '.jpg', '.jpeg', '.tiff', '.bmp', '.gif', '.heic')):
             try:
                 # Rename the file by changing its extension
-                output_path = os.path.join(output_folder, f"{os.path.splitext(file)[0]}.{new_extension}")
+                output_path = os.path.join(
+                    output_folder, f"{os.path.splitext(file)[0]}.{new_extension}")
                 os.rename(file_path, output_path)
                 print(f"Renamed {file} to {os.path.basename(output_path)}")
             except Exception as e:
@@ -21,6 +23,6 @@ def rename_images(folder_path, output_folder, new_extension='jpg'):
 
 
 if __name__ == "__main__":
-    input_folder = "/Users/jinhyunpark/Desktop/CSCE670"
-    output_folder = "/Users/jinhyunpark/Desktop/CSCE670_unified"
+    input_folder = "images"
+    output_folder = "images_unified"
     rename_images(input_folder, output_folder)
