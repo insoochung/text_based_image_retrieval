@@ -7,5 +7,4 @@ def welcome(request):
 
 def result(request):
     index = request.GET['index']
-    print("Fix here for retrieve the photo")
     return render(request, 'result.html')
