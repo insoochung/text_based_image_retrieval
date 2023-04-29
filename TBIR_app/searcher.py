@@ -37,17 +37,14 @@ class Searcher:
 
         return embedding
 
-    def query_caption_score(self):
+    def query_caption_score(self, query="two men under sky"):
         # retrive model
         model = TextVectorizer()
 
-        # query
-        your_query = "hello world"
-
         # captions
-        caption_for_allimgs = self.initialize_caption_embedding()
+        caption_for_allimgs = self.caption_embedding
 
-        query_embedding = model(your_query)  # get embedding for your_query
+        query_embedding = model(query)  # get embedding for query
         # calculate cosine similarity between caption embeddings and query embedding
         cosine = cosine_similarity(
             caption_for_allimgs, query_embedding.reshape(1, -1))
@@ -61,7 +58,7 @@ class Searcher:
 
         return list(zip(top_25_cosine_indices, top_25_cosine_values))
 
-    def query_face_score(self):
+    def query_face_score(self, query="insoo and jinhyun"):
 
         NAME_TO_IDX = {
             "insoo": 0,
@@ -71,19 +68,16 @@ class Searcher:
             "unknown": 4,
         }
 
-        # query
-        your_query = "insoo and jinhyun"
-
         # initialize one-hot vector
         one_hot = np.zeros((5,))
 
         # loop through each name in NAME_TO_IDX and check if it appears in the query
         for name, idx in NAME_TO_IDX.items():
-            if name in your_query:
+            if name in query:
                 np.put(one_hot, idx, 1)
 
         # face refs
-        facerefs = self.initialize_face_embedding()
+        facerefs = self.faceref_embedding
 
         intersection = np.logical_and(one_hot, facerefs)
         union = np.logical_or(one_hot, facerefs)
@@ -104,7 +98,5 @@ class Searcher:
 
 if __name__ == "__main__":
     searcher = Searcher()
-    searcher.initialize_caption_embedding()
-    searcher.initialize_face_embedding()
     searcher.query_caption_score()
     searcher.query_face_score()
