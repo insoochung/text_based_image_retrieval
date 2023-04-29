@@ -29,6 +29,8 @@ class LocationTagger:
 
     def get_tags(self, image_path):
         meta = gpsphoto.getGPSData(image_path)
+        if(len(meta)==0):
+            return ""
         loc_type = "establishment"
         url = (f"https://maps.googleapis.com/maps/api/place/nearbysearch/json?"
                f"location={meta['Latitude']:.5f}%2C{meta['Longitude']:.5f}&type={loc_type}&radius=1500&key={MAPS_API_KEY}")
