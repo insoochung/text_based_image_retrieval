@@ -1,17 +1,14 @@
-<!doctype html>
-<html lang="eng">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UACompatible" content="IE-edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Semantic Search Engine</title>
-</head>
+{% extends 'base.html' %}
 
-<body>
-    <h1>PEPSE: PErsonal Photo Search Engine</h1>
-    <h2>CSCE 670</h2>
+{% block content %}
+    <center><h1 class="page-title"><span class="red-letter">PE</span>P<span class="blue-letter">SE</span>: <span class="red-letter">PE</span>rsonal Photo <span class="blue-letter">S</span>earch <span class="blue-letter">E</span>ngine</h1></center>
+    <center><h2 class="page-subtitle">CSCE 670</h2></center>
     <hr>
     <center><h3>Search result</h3></center>
     <center><h3>fix here for the search result screen</h3></center>
-</body>
-</html>
+    <div class="button-container">
+        <form action="{% url 'home' %}" method="get">
+          <center><button type="submit">Home</button></center>
+        </form>
+    </div>
+{% endblock %}
