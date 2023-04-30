@@ -21,6 +21,7 @@ def result(request):
     search_args = {"query": request.GET["query"],
                    "caption_ratio": float(request.GET["caption_ratio"]),
                    "face_tags_ratio": float(request.GET["face_tags_ratio"]),
+                   "geoloc_ratio": float(request.GET["geoloc_ratio"]),
                    "top_k": int(request.GET["top_k"])}
     result = SEARCHER.query(**search_args)
 
@@ -29,6 +30,7 @@ def result(request):
         photo_obj = Photo.objects.get(id=photo_dict["id"])
         photo_dict["caption"] = photo_obj.caption
         photo_dict["names"] = photo_obj.names
+        photo_dict["geolocation"] = photo_obj.geolocation
         ret.append((photo_obj.image_url, photo_dict))
 
     return render(request, "result.html", {"search_results": ret, "search_args": search_args})

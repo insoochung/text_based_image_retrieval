@@ -19,10 +19,15 @@ def vectorize_image_attributes(images_dir="images"):
     text_vectorizer = TextVectorizer()
 
     for photo in tqdm.tqdm(Photo.objects.all()):
-        if photo.caption_vector:
-            continue
-        if not photo.caption_vector:
-            photo.caption_vector = text_vectorizer(photo.caption)
+        if "<CANNOT_OPEN>" in photo.caption or not photo.caption.strip():
+            photo.caption_vector = [0.0] * 256
+        else:
+            photo.caption_vector = list(text_vectorizer(photo.caption))
+
+        if "<CANNOT_OPEN>" in photo.geolocation or not photo.geolocation.strip():
+            photo.geo_vector = [0.0] * 256
+        else:
+            photo.geo_vector = list(text_vectorizer(photo.geolocation))
         photo.save()
 
 
