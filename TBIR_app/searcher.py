@@ -11,6 +11,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_project.settings')
 django.setup()
 
 from TBIR_app.models import Photo  # nopep8
+from TBIR_app.dl_modules.face_tagger import NAME_TO_IDX  # nopep8
 from TBIR_app.dl_modules.text_vectorizer import TextVectorizer  # nopep8
 
 
@@ -119,15 +120,6 @@ class Searcher:
         return scores
 
     def query_face_score(self, query="insoo and jinhyun"):
-
-        NAME_TO_IDX = {
-            "insoo": 0,
-            "jinhyun": 1,
-            "kwangkyu": 2,
-            "youngki": 3,
-            "unknown": 4,
-        }
-
         # initialize one-hot vector
         one_hot = np.zeros((5,))
 
@@ -153,19 +145,19 @@ class Searcher:
         scores = np.zeros(shape=(len(Photo.objects.all()), 1))
         scores_dict = {}
         if caption_ratio > 0:
-            caption_scores = self.query_caption_score(query)
+            caption_scores = self.query_caption_score(query.lower())
             assert not np.any(np.isnan(caption_scores))
             caption_scores = standardize(caption_scores)
             scores_dict["caption_scores"] = caption_scores
             scores += caption_scores * caption_ratio
         if face_tags_ratio > 0:
-            face_scores = self.query_face_score(query)
+            face_scores = self.query_face_score(query.lower())
             assert not np.any(np.isnan(face_scores))
             face_scores = standardize(face_scores)
             scores_dict["face_tag_scores"] = face_scores
             scores += face_scores * face_tags_ratio
         if geoloc_ratio > 0:
-            geoloc_scores = self.query_geoloc_score(query)
+            geoloc_scores = self.query_geoloc_score(query.lower())
             assert not np.any(np.isnan(geoloc_scores))
             geoloc_scores = standardize(geoloc_scores)
             scores_dict["geoloc_scores"] = geoloc_scores

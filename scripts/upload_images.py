@@ -14,7 +14,7 @@ django.setup()
 from TBIR_app.models import Photo  # nopep8
 
 
-def upload_images(photo_folder_path='images'):
+def upload_images(photo_folder_path=os.path.join(os.path.dirname(__file__), "../static/images")):
     s3 = boto3.client('s3', region_name=AWS_S3_REGION_NAME,
                       aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
     for filename in os.listdir(photo_folder_path):

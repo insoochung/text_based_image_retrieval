@@ -17,7 +17,7 @@ from TBIR_app.models import Photo  # nopep8
 from TBIR_app.dl_modules.caption_generator import CaptionGenerator  # nopep8
 
 
-def caption_images(images_dir="images"):
+def caption_images(images_dir=os.path.join(os.path.dirname(__file__), "../static/images")):
     print("Captioning images...")
     s3_client = boto3.client("s3", region_name=AWS_S3_REGION_NAME,
                              aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)

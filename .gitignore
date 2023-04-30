@@ -4,3 +4,4 @@ __pycache__/
 .env
 .DS_Store
 images
+images_new

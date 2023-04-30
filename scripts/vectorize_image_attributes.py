@@ -14,7 +14,7 @@ from TBIR_app.models import Photo  # nopep8
 from TBIR_app.dl_modules.text_vectorizer import TextVectorizer  # nopep8
 
 
-def vectorize_image_attributes(images_dir="images"):
+def vectorize_image_attributes():
     print("Vectorizing image attributes...")
     text_vectorizer = TextVectorizer()
 

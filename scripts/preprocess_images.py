@@ -32,6 +32,7 @@ def preprocess_images(folder_path, output_folder, new_extension='jpg'):
 
 
 if __name__ == "__main__":
-    input_folder = "images_raw"
-    output_folder = "images"
+    input_folder = os.path.join(
+        os.path.dirname(__file__), "../static/images_raw")
+    output_folder = os.path.join(os.path.dirname(__file__), "../static/images")
     preprocess_images(input_folder, output_folder)
