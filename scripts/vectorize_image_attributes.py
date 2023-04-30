@@ -14,20 +14,20 @@ from TBIR_app.models import Photo  # nopep8
 from TBIR_app.dl_modules.text_vectorizer import TextVectorizer  # nopep8
 
 
-def vectorize_image_attributes():
+def vectorize_image_attributes(hidden_size=768):
     print("Vectorizing image attributes...")
     text_vectorizer = TextVectorizer()
 
     for photo in tqdm.tqdm(Photo.objects.all()):
         if "<CANNOT_OPEN>" in photo.caption or not photo.caption.strip():
-            photo.caption_vector = [0.0] * 256
-        else:
-            photo.caption_vector = list(text_vectorizer(photo.caption))
+            photo.caption_vector = [0.0] * 768
+        # else:
+        #     photo.caption_vector = text_vectorizer(photo.caption).tolist()
 
         if "<CANNOT_OPEN>" in photo.geolocation or not photo.geolocation.strip():
-            photo.geo_vector = [0.0] * 256
-        else:
-            photo.geo_vector = list(text_vectorizer(photo.geolocation))
+            photo.geo_vector = [0.0] * 768
+        # else:
+        #     photo.geo_vector = text_vectorizer(photo.geolocation).tolist()
         photo.save()
 
 
