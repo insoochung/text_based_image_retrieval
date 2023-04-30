@@ -17,7 +17,7 @@ from TBIR_app.models import Photo  # nopep8
 from TBIR_app.dl_modules.caption_generator import CaptionGenerator  # nopep8
 
 
-def caption_images(images_dir="images"):
+def caption_images(images_dir=os.path.join(os.path.dirname(__file__), "../static/images")):
     print("Captioning images...")
     s3_client = boto3.client("s3", region_name=AWS_S3_REGION_NAME,
                              aws_access_key_id=AWS_ACCESS_KEY_ID, aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
@@ -26,12 +26,12 @@ def caption_images(images_dir="images"):
         os.makedirs(images_dir)
 
     for photo in tqdm.tqdm(Photo.objects.all()):
-        if photo.caption:
-            continue
+        # if photo.caption:
+        #     continue
         image_path = maybe_download(
             s3_client, photo, images_dir, AWS_STORAGE_BUCKET_NAME)
         try:
-            caption = caption_gen(image_path)[0]["generated_text"]
+            caption = caption_gen(image_path)
             tqdm.tqdm.write(f"{image_path.split('/')[-1]}: {caption}")
             photo.caption = caption
             photo.save()
