@@ -1,6 +1,8 @@
 from django.db import models
 
 # Create your models here.
+
+
 class Photo(models.Model):
     image_url = models.URLField(null=True)
     caption = models.CharField(max_length=255)
@@ -10,6 +12,5 @@ class Photo(models.Model):
     geolocation = models.CharField(null=True, max_length=255)
     geo_vector = models.JSONField(null=True, blank=True)
 
-
     def __str__(self):
-        return self.caption
+        return str(self.id)
