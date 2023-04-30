@@ -26,12 +26,12 @@ def caption_images(images_dir=os.path.join(os.path.dirname(__file__), "../static
         os.makedirs(images_dir)
 
     for photo in tqdm.tqdm(Photo.objects.all()):
-        if photo.caption:
-            continue
+        # if photo.caption:
+        #     continue
         image_path = maybe_download(
             s3_client, photo, images_dir, AWS_STORAGE_BUCKET_NAME)
         try:
-            caption = caption_gen(image_path)[0]["generated_text"]
+            caption = caption_gen(image_path)
             tqdm.tqdm.write(f"{image_path.split('/')[-1]}: {caption}")
             photo.caption = caption
             photo.save()

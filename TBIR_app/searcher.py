@@ -6,6 +6,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))  # nopep8
 import django
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers.util import dot_score
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'django_project.settings')
 django.setup()
@@ -34,6 +35,7 @@ class Searcher:
         ids = []
         for photo in Photo.objects.all():
             caption_vector = np.array(photo.caption_vector)
+            # print(caption_vector.shape)
             embedding.append(caption_vector)
             ids.append(photo.id)
 
@@ -41,8 +43,10 @@ class Searcher:
             self.ids = ids
         else:
             assert self.ids == ids
-
-        embedding = np.array(embedding)
+        # print(embedding[0].shape)
+        # print(embedding.shape)
+        # embedding = np.stack(embedding)
+        embedding = np.array(embedding, dtype=np.float32)
         return embedding
 
     def initialize_geoloc_embedding(self):
@@ -58,7 +62,7 @@ class Searcher:
         else:
             assert self.ids == ids
 
-        embedding = np.array(embedding)
+        embedding = np.array(embedding, dtype=np.float32)
         return embedding
 
     def initialize_face_embedding(self):
@@ -74,24 +78,26 @@ class Searcher:
         else:
             assert self.ids == ids
 
-        embedding = np.array(embedding)
+        embedding = np.array(embedding, dtype=np.float32)
         return embedding
 
-    def query_caption_score(self, query="two men under sky", metric="cos_sim"):
+    def query_caption_score(self, query="two men under sky", metric="dot_score"):
         # captions
-        caption_embedding = self.caption_embedding  # (N,256)
+        caption_embedding = self.caption_embedding  # (N,H)
         query_embedding = self.text_vectorizer(
             query)  # get embedding for query
-        query_embedding = query_embedding.reshape((1, -1))  # (1,256)
+        query_embedding = query_embedding.reshape((1, -1))  # (1,H)
 
         if metric == "cos_sim":
-            cosine = cosine_similarity(
-                caption_embedding, query_embedding.reshape(1, -1))
-            # reshape cosine similarity array to (1503, 1)
+            cosine = cosine_similarity(caption_embedding, query_embedding)
+            # reshape cosine similarity array to (N, 1)
             scores = cosine.reshape(-1, 1)
+        elif metric == "dot_score":
+            scores = dot_score(query_embedding, caption_embedding).numpy()
+            scores = scores.reshape((-1, 1))
         else:  # inv_l2_dist
             scores = np.power(caption_embedding -
-                              query_embedding, 2)  # (N, 256)
+                              query_embedding, 2)  # (N, H)
             scores = np.sum(scores, axis=1)  # (N)
             scores = standardize(scores)
             scores = 1 - scores
@@ -100,19 +106,22 @@ class Searcher:
 
     def query_geoloc_score(self, query="grand canyon", metric="inv_l2_dist"):
         # geolocs
-        geoloc_embedding = self.geoloc_embedding  # (N,256)
+        geoloc_embedding = self.geoloc_embedding  # (N,H)
         query_embedding = self.text_vectorizer(
             query)  # get embedding for query
-        query_embedding = query_embedding.reshape((1, -1))  # (1,256)
+        query_embedding = query_embedding.reshape((1, -1))  # (1,H)
 
         if metric == "cos_sim":
             cosine = cosine_similarity(
                 geoloc_embedding, query_embedding.reshape(1, -1))
-            # reshape cosine similarity array to (1503, 1)
+            # reshape cosine similarity array to (N, 1)
             scores = cosine.reshape(-1, 1)
+        elif metric == "dot_score":
+            scores = dot_score(query_embedding, geoloc_embedding).numpy()
+            scores = scores.reshape((-1, 1))
         else:  # inv_l2_dist
             scores = np.power(geoloc_embedding -
-                              query_embedding, 2)  # (N, 256)
+                              query_embedding, 2)  # (N, H)
             scores = np.sum(scores, axis=1)  # (N)
             scores = standardize(scores)
             scores = 1 - scores
@@ -138,7 +147,7 @@ class Searcher:
         union_count = np.sum(union, axis=1)
 
         iou = intersection_count / (union_count + 1e-6)
-        iou = iou.reshape(-1, 1)  # reshape to (1503)
+        iou = iou.reshape(-1, 1)  # reshape to (N)
         return iou
 
     def query(self, query, caption_ratio=1.0, face_tags_ratio=0.0, geoloc_ratio=0.0, top_k=25):
