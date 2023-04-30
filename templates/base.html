@@ -1,18 +1,27 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="eng">
-{% load static %}
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UACompatible" content="IE-edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Semantic Search Engine</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
+  {% load static %}
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UACompatible" content="IE-edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Semantic Search Engine</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
 
-<body>
-    
-    {% block content %}
-    {% endblock %}
-
-</body>
+  <body>
+    <center>
+      <h2 class="page-title">
+        <span class="red-letter">PE</span>P<span class="blue-letter">SE</span>
+        <br />
+      </h2>
+      <h3>
+        <img src=".\static\assets\img\pepsi.png" height="30px" />
+        Personalized Photo Search Engine
+      </h3>
+    </center>
+    <br />
+    <br />
+    {% block content %} {% endblock %}
+  </body>
 </html>

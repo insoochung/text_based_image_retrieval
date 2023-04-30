@@ -1,20 +1,85 @@
 {% extends 'base.html' %} {% block content %}
-<center>
-  <h1 class="page-title">
-    <span class="red-letter">PE</span>P<span class="blue-letter">SE</span>:
-    <span class="red-letter">PE</span>rsonal Photo
-    <span class="blue-letter">S</span>earch
-    <span class="blue-letter">E</span>ngine
-  </h1>
-</center>
-<center><h2 class="page-subtitle">CSCE 670</h2></center>
-<hr />
-<div class="search-bar">
-  <form action="result">
-    <div class="search-icon"><img src=".\static\assets\img\pepsi.png" /></div>
-    <input type="text" name="index" placeholder="Search" />
-    <button type="submit" class="submit-button">Submit</button>
-    <div class="mic-icon"><i class="fa fa-microphone"></i></div>
-  </form>
-</div>
+
+<form action="result">
+  <div class="card text-center mx-auto" style="width: 70%">
+    <div class="card-header">
+      You can tune the contribution of each attribute to the final output!
+    </div>
+    <div class="card-body">
+      <p class="card-text"></p>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">Control</th>
+            <th scope="col">Power</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td scope="row">Caption 👉</td>
+            <td>
+              <input
+                type="range"
+                name="caption_ratio"
+                min="0.0"
+                max="1.0"
+                step="0.1"
+                value="1.0"
+                oninput="this.nextElementSibling.value = this.value"
+              />
+              <output>1.0</output>
+            </td>
+          </tr>
+          <tr>
+            <td scope="row">Name tags 👉</td>
+            <td>
+              <input
+                type="range"
+                name="face_tags_ratio"
+                min="0.0"
+                max="1.0"
+                step="0.1"
+                value="0.5"
+                oninput="this.nextElementSibling.value = this.value"
+              />
+              <output>0.5</output>
+            </td>
+          </tr>
+          <tr>
+            <td scope="row">Num. results 👉</td>
+            <td>
+              <input
+                type="range"
+                name="top_k"
+                min="4"
+                max="32"
+                step="4"
+                value="8"
+                oninput="this.nextElementSibling.value = this.value"
+              />
+              <output>8</output>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <hr />
+      <div class="input-group input-group-sm mb-3">
+        <input
+          type="text"
+          name="query"
+          class="form-control"
+          aria-label="👀?"
+          aria-describedby="inputGroup-sizing-sm"
+          placeholder="What are you looking for?"
+        />
+        <div class="input-group-append">
+          <button type="submit" class="btn btn-outline-secondary" type="button">
+            👀?
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
 {% endblock %}

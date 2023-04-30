@@ -22,8 +22,10 @@ def standardize(scores):
 
 class Searcher:
     def __init__(self):
+        self.ids = None
         self.caption_embedding = self.initialize_caption_embedding()
         self.faceref_embedding = self.initialize_face_embedding()
+        self.text_vectorizer = TextVectorizer()
 
     def initialize_caption_embedding(self):
         embedding = []
@@ -33,9 +35,12 @@ class Searcher:
             embedding.append(caption_vector)
             ids.append(photo.id)
 
-        assert ids == list(range(1, len(Photo.objects.all()) + 1))
-        embedding = np.array(embedding)
+        if not self.ids:
+            self.ids = ids
+        else:
+            assert self.ids == ids
 
+        embedding = np.array(embedding)
         return embedding
 
     def initialize_face_embedding(self):
@@ -45,21 +50,19 @@ class Searcher:
             name_vector = np.array(photo.name_vector)
             embedding.append(name_vector)
             ids.append(photo.id)
+        if not self.ids:
+            self.ids = ids
+        else:
+            assert self.ids == ids
 
-        assert ids == list(range(1, len(Photo.objects.all()) + 1))
         embedding = np.array(embedding)
         return embedding
 
     def query_caption_score(self, query="two men under sky", metric="cos_sim"):
-        # retrive model
-        model = TextVectorizer()
-
         # captions
         caption_embedding = self.caption_embedding  # (N,256)
-        # print(caption_embedding[:3])
-        query_embedding = model(query)  # get embedding for query
-        # print(query_embedding)
-        # assert 0
+        query_embedding = self.text_vectorizer(
+            query)  # get embedding for query
         query_embedding = query_embedding.reshape((1, -1))  # (1,256)
 
         if metric == "cos_sim":
@@ -67,7 +70,7 @@ class Searcher:
                 caption_embedding, query_embedding.reshape(1, -1))
             # reshape cosine similarity array to (1503, 1)
             scores = cosine.reshape(-1, 1)
-        else:
+        else:  # inv_l2_dist
             scores = np.power(caption_embedding -
                               query_embedding, 2)  # (N, 256)
             scores = np.sum(scores, axis=1)  # (N)
@@ -75,26 +78,6 @@ class Searcher:
             scores = 1 - scores
             scores = scores.reshape((-1, 1))  # (N, 1)
         return scores
-        # assert 0
-        # assert 0
-        # print(scores.shape)
-        # assert 0
-        # assert 0, (caption_embedding.shape, query_embedding.shape)
-
-        # calculate cosine similarity between caption embeddings and query embedding
-        # cosine = cosine_similarity(
-        #     caption_embedding, query_embedding.reshape(1, -1))
-        # # reshape cosine similarity array to (1503, 1)
-        # cosine = cosine.reshape(-1, 1)
-        return scores
-
-        # # get the top 25 cosine similarity indices
-        # top_25_cosine_indices = reversed(
-        #     np.argsort(cosine, axis=0)[-25:].flatten())
-        # # get the top 25 cosine similarity values
-        # top_25_cosine_values = cosine.take(top_25_cosine_indices)
-
-        # return list(zip(top_25_cosine_indices, top_25_cosine_values))
 
     def query_face_score(self, query="insoo and jinhyun"):
 
@@ -111,7 +94,7 @@ class Searcher:
 
         # loop through each name in NAME_TO_IDX and check if it appears in the query
         for name, idx in NAME_TO_IDX.items():
-            if name in query:
+            if name in query.lower():
                 np.put(one_hot, idx, 1)
 
         # face refs
@@ -123,35 +106,40 @@ class Searcher:
         intersection_count = np.sum(intersection, axis=1)
         union_count = np.sum(union, axis=1)
 
-        iou = intersection_count / union_count
+        iou = intersection_count / (union_count + 1e-6)
         iou = iou.reshape(-1, 1)  # reshape to (1503)
         return iou
-        # # get the top 25 cosine similarity indices
-        # top_25_iou_indices = reversed(np.argsort(iou, axis=0)[-25:].flatten())
-        # # get the top 25 cosine similarity values
-        # top_25_iou_values = iou.take(top_25_iou_indices)
-
-        # return list(zip(top_25_iou_indices, top_25_iou_values))
 
     def query(self, query, caption_ratio=1.0, face_tags_ratio=0.2, top_k=25):
         scores = np.zeros(shape=(len(Photo.objects.all()), 1))
+        scores_dict = {}
         if caption_ratio > 0:
-            caption_scores = self.query_caption_score(query)  # 0~1
-            # scores += standardize(caption_scores) * caption_ratio
-            # print(caption_scores)
-            scores += standardize(caption_scores) * caption_ratio
-            # print(scores)
-            # assert 0
+            caption_scores = self.query_caption_score(query)
+            assert not np.any(np.isnan(caption_scores))
+            # caption_scores = standardize(caption_scores)
+            scores_dict["caption_scores"] = caption_scores
+            scores += caption_scores * caption_ratio
         if face_tags_ratio > 0:
-            face_scores = self.query_face_score(query)  # 0~1
-            scores += standardize(face_scores) * face_tags_ratio
+            face_scores = self.query_face_score(query)
+            assert not np.any(np.isnan(face_scores))
+            # face_scores = standardize(face_scores)
+            scores_dict["face_tag_scores"] = face_scores
+            scores += face_scores * face_tags_ratio
+
         scores = np.reshape(scores, (-1, 1))
         top_k_scores_indices = list(reversed(
             np.argsort(scores, axis=0)[-top_k:].flatten()))
-        # get the top 25 cosine similarity values
-        top_k_scores_values = scores.take(top_k_scores_indices)
 
-        return list(zip(top_k_scores_indices, top_k_scores_values))
+        ret = []
+        for idx in top_k_scores_indices:
+            meta = {}
+            meta["id"] = idx + 1  # increment 1 to match table ids
+            meta["score"] = float(scores[idx])
+            for key in scores_dict.keys():
+                meta[key] = float(scores_dict[key][idx])
+            ret.append(meta)
+
+        return ret
 
 
 if __name__ == "__main__":
