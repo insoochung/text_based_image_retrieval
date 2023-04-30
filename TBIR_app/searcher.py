@@ -149,7 +149,7 @@ class Searcher:
         iou = iou.reshape(-1, 1)  # reshape to (1503)
         return iou
 
-    def query(self, query, caption_ratio=1.0, face_tags_ratio=0.2, geoloc_ratio=0.0, top_k=25):
+    def query(self, query, caption_ratio=1.0, face_tags_ratio=0.0, geoloc_ratio=0.0, top_k=25):
         scores = np.zeros(shape=(len(Photo.objects.all()), 1))
         scores_dict = {}
         if caption_ratio > 0:
