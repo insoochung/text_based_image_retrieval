@@ -1,15 +1,20 @@
-{% extends 'base.html' %}
-
-{% block content %}
-    <center><h1 class="page-title"><span class="red-letter">PE</span>P<span class="blue-letter">SE</span>: <span class="red-letter">PE</span>rsonal Photo <span class="blue-letter">S</span>earch <span class="blue-letter">E</span>ngine</h1></center>
-    <center><h2 class="page-subtitle">CSCE 670</h2></center>
-    <hr>
-    <div class="search-bar">
-        <form action="result">
-            <div class="search-icon"><img src=".\static\assets\img\pepsi.png"></div>
-            <input type="text" name="index" placeholder="Search">
-            <button type="submit" class="submit-button">Submit</button>
-            <div class="mic-icon"><i class="fa fa-microphone"></i></div>
-        </form>
-    </div>
+{% extends 'base.html' %} {% block content %}
+<center>
+  <h1 class="page-title">
+    <span class="red-letter">PE</span>P<span class="blue-letter">SE</span>:
+    <span class="red-letter">PE</span>rsonal Photo
+    <span class="blue-letter">S</span>earch
+    <span class="blue-letter">E</span>ngine
+  </h1>
+</center>
+<center><h2 class="page-subtitle">CSCE 670</h2></center>
+<hr />
+<div class="search-bar">
+  <form action="result">
+    <div class="search-icon"><img src=".\static\assets\img\pepsi.png" /></div>
+    <input type="text" name="index" placeholder="Search" />
+    <button type="submit" class="submit-button">Submit</button>
+    <div class="mic-icon"><i class="fa fa-microphone"></i></div>
+  </form>
+</div>
 {% endblock %}
