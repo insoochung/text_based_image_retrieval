@@ -156,19 +156,19 @@ class Searcher:
         if caption_ratio > 0:
             caption_scores = self.query_caption_score(query.lower())
             assert not np.any(np.isnan(caption_scores))
-            caption_scores = standardize(caption_scores)
+            # caption_scores = standardize(caption_scores)
             scores_dict["caption_scores"] = caption_scores
             scores += caption_scores * caption_ratio
         if face_tags_ratio > 0:
             face_scores = self.query_face_score(query.lower())
             assert not np.any(np.isnan(face_scores))
-            face_scores = standardize(face_scores)
+            # face_scores = standardize(face_scores)
             scores_dict["face_tag_scores"] = face_scores
             scores += face_scores * face_tags_ratio
         if geoloc_ratio > 0:
             geoloc_scores = self.query_geoloc_score(query.lower())
             assert not np.any(np.isnan(geoloc_scores))
-            geoloc_scores = standardize(geoloc_scores)
+            # geoloc_scores = standardize(geoloc_scores)
             scores_dict["geoloc_scores"] = geoloc_scores
             scores += geoloc_scores * geoloc_ratio
 
