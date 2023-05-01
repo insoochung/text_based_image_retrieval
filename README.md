@@ -43,6 +43,15 @@ In this project, we use image captioning and their vector representations (feat.
 3) Distances between embeddings are used to determine whose face it is then face tags are attached to the images (offline inference).
 4) Names are identified from user queries to compute face tag score!
 
+![](_images/faces.png)
+
+**Sentence-based semantic search**
+1) Captions are generated from images, then BERT embedding matrix for all captions is computed (offline inference)
+2) An user query is received, then a BERT embedding  vector for it is computed (online inference)
+3) Dot-product scores between embedding vectors are computed as a measure of similarity!
+
+![](_images/captions.png)
+
 # Results
 
 [Website](https://sites.google.com/tamu.edu/pepse)
