@@ -4,13 +4,13 @@
 
 Most commercial photo libraries provide tag-based search functions (i.g. faces, geolocation), but this isn't enough to find your photos that got deeply buried into the tens of thousands of photos you took. Consider the following situation:
 
-![](./images/intro.png)
+![](./_images/intro.png)
 
 In this project, we use image captioning and their vector representations (feat. huggingface LMs), to help find your photo.
 
 ## Demo
 
-[![](./images/thumbnail.png)](https://youtu.be/ZiI4mklxKoY)
+[![](./_images/thumbnail.png)](https://youtu.be/ZiI4mklxKoY)
 
 # Quick start
 
